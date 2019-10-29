@@ -4,3 +4,10 @@
 exports.getUsers = (req, res, next) => {
   res.status(200).json({ sucess: true, msg: 'Show all Users' });
 };
+
+// @desc   Create user
+// @route   POST /api/v0/users
+// @acess   Private
+exports.createUser = (req, res, next) => {
+  console.log(req.body);
+};
