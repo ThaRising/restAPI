@@ -7,7 +7,12 @@ const UserSchema = new mongoose.Schema(
       required: [true, 'Please add a username'],
       unique: false,
       trim: true,
-      maxlength: [20, 'Name may not be longer than 20 characters']
+      maxlength: [20, 'Name may not be longer than 20 characters'],
+      match: [/^\S*$/, 'Please add a valid username']
+    },
+    tag: {
+      type: Number,
+      unique: true
     },
     slug: String,
     email: {
@@ -29,6 +34,17 @@ const UserSchema = new mongoose.Schema(
   { autoIndex: false }
 );
 
-const User = mongoose.model('User', userScheme);
+UserSchema.methods.generateSlug = function() {
+  return this.username
+    .replace(/\s+/g, '-')
+    .replace(/[^\w\-]+/g, '')
+    .replace(/\-\-+/g, '-');
+};
 
-module.exports(User);
+UserSchema.pre('save', async function() {
+  this.slug = await this.generateSlug();
+});
+
+const User = mongoose.model('User', UserSchema);
+
+module.exports = User;
