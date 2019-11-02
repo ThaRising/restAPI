@@ -11,16 +11,26 @@ exports.getUsers = (req, res, next) => {
 // @route   POST /api/v0/users
 // @access   Private
 exports.createUser = async (req, res, next) => {
-  const user = User.create(req.body, err => {
-    if (err)
-      return res.status(406).json({
-        success: false,
-        msg: err.message
-      });
-    else
-      return res.status(201).json({
-        success: true,
-        data: req.body
-      });
-  });
+  const user = User.create(
+    {
+      username: req.body.username,
+      email: req.body.email,
+      hash: req.body.password
+    },
+    err => {
+      if (err)
+        return res.status(400).json({
+          success: false,
+          error: err.message
+        });
+      else
+        return res.status(201).json({
+          success: true,
+          data: {
+            username: req.body.username,
+            email: req.body.email
+          }
+        });
+    }
+  );
 };
