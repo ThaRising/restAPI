@@ -1,4 +1,11 @@
 const mongoose = require('mongoose');
+const uniqueValidator = require('mongoose-unique-validator');
+const crypto = require('crypto');
+const jwt = require('jsonwebtoken');
+const dotenv = require('dotenv');
+
+// Load Environmental Variables
+dotenv.config({ path: './config/secret.env' });
 
 const UserSchema = new mongoose.Schema(
   {
@@ -32,10 +39,54 @@ const UserSchema = new mongoose.Schema(
     createdAt: {
       type: Date,
       default: Date.now
-    }
+    },
+    hash: String,
+    salt: String
   },
   { autoIndex: false }
 );
+
+// Validates keys flagged with 'unique: true'
+UserSchema.plugin(uniqueValidator, {
+  message: 'This E-Mail is already in use.'
+});
+
+UserSchema.methods.setPassword = function(password) {
+  this.salt = crypto.randomBytes(16).toString('hex');
+  this.hash = crypto
+    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
+    .toString('hex');
+};
+
+UserSchema.methods.validPassword = function(password) {
+  const hash = crypto
+    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
+    .toString('hex');
+  return this.hash === hash;
+};
+
+UserSchema.methods.generateJWT = function() {
+  const today = new Date();
+  const exp = new Date(today);
+  exp.setDate(today.getDate() + 60);
+
+  return jwt.sign(
+    {
+      id: this._id,
+      username: this.username,
+      exp: parseInt(exp.getTime() / 1000)
+    },
+    process.env.SECRET
+  );
+};
+
+UserSchema.methods.toAuthJSON = function() {
+  return {
+    username: this.username,
+    email: this.email,
+    token: this.generateJWT()
+  };
+};
 
 UserSchema.methods.generateTag = async function() {
   const promise = await this.constructor
@@ -58,7 +109,8 @@ UserSchema.methods.generateSlug = function() {
 
 UserSchema.pre('save', async function() {
   this.tag = await this.generateTag();
-  this.slug = await this.generateSlug();
+  this.slug = this.generateSlug();
+  this.setPassword(this.hash);
 });
 
 const User = mongoose.model('User', UserSchema);
