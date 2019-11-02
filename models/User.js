@@ -90,7 +90,7 @@ UserSchema.methods.toAuthJSON = function() {
 
 UserSchema.methods.generateTag = async function() {
   const promise = await this.constructor
-    .find({ username: this.username })
+    .find({ username: { $regex: new RegExp('^' + this.username + '$', 'i') } })
     .sort({ tag: -1 })
     .limit(1)
     .exec();
