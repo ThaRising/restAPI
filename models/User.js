@@ -36,6 +36,11 @@ const UserSchema = new mongoose.Schema(
       ]
     },
     country: String,
+    role: {
+      type: String,
+      default: 'user',
+      enum: ['user', 'developer']
+    },
     createdAt: {
       type: Date,
       default: Date.now
@@ -46,11 +51,7 @@ const UserSchema = new mongoose.Schema(
   { autoIndex: false }
 );
 
-// Validates keys flagged with 'unique: true'
-UserSchema.plugin(uniqueValidator, {
-  message: 'This E-Mail is already in use.'
-});
-
+// Add Schema methods
 UserSchema.methods.setPassword = function(password) {
   this.salt = crypto.randomBytes(16).toString('hex');
   this.hash = crypto
@@ -58,6 +59,7 @@ UserSchema.methods.setPassword = function(password) {
     .toString('hex');
 };
 
+// Validate user password
 UserSchema.methods.validPassword = function(password) {
   const hash = crypto
     .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
@@ -65,21 +67,22 @@ UserSchema.methods.validPassword = function(password) {
   return this.hash === hash;
 };
 
+// Generate session token
 UserSchema.methods.generateJWT = function() {
   const today = new Date();
   const exp = new Date(today);
-  exp.setDate(today.getDate() + 60);
-
+  exp.setDate(today.getDate() + process.env.JWT_EXPIRE);
   return jwt.sign(
     {
       id: this._id,
       username: this.username,
       exp: parseInt(exp.getTime() / 1000)
     },
-    process.env.SECRET
+    process.env.JWT_SECRET
   );
 };
 
+// Return session token and user data to frontend
 UserSchema.methods.toAuthJSON = function() {
   return {
     username: this.username,
@@ -88,6 +91,7 @@ UserSchema.methods.toAuthJSON = function() {
   };
 };
 
+// Generate unique tag for duplicate usernames
 UserSchema.methods.generateTag = async function() {
   const promise = await this.constructor
     .find({ username: { $regex: new RegExp('^' + this.username + '$', 'i') } })
@@ -97,6 +101,7 @@ UserSchema.methods.generateTag = async function() {
   return promise.length ? Number(promise[0].tag) + 1 : Number(1000);
 };
 
+// Generate slug from username
 UserSchema.methods.generateSlug = function() {
   return this.username
     .toString()
@@ -107,10 +112,17 @@ UserSchema.methods.generateSlug = function() {
     .concat(`-${this.tag}`);
 };
 
-UserSchema.pre('save', async function() {
+// Validates keys flagged with 'unique: true'
+UserSchema.plugin(uniqueValidator, {
+  message: '{PATH} is already in use.'
+});
+
+// Pre-Save middleware
+UserSchema.pre('save', async function(next) {
   this.tag = await this.generateTag();
   this.slug = this.generateSlug();
   this.setPassword(this.hash);
+  next(new Error('pre save error'));
 });
 
 const User = mongoose.model('User', UserSchema);
