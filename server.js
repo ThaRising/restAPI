@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const errorHandler = require('./middleware/error');
 const connectDB = require('./config/db');
 
 // Load environmental variables
@@ -11,10 +12,12 @@ const auth = require('./routes/auth');
 
 // Create router
 const app = express();
+app.use(express.json());
 
 // Mount Routers
 app.use('/api/v0/users', users);
 app.use('/api/v0/auth', auth);
+app.use(errorHandler);
 
 // Connect to database
 connectDB();
