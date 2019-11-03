@@ -5,15 +5,16 @@ const connectDB = require('./config/db');
 // Load environmental variables
 dotenv.config({ path: './config/config.env' });
 
-// Routing
+// Import routers
 const users = require('./routes/users');
+const auth = require('./routes/auth');
 
+// Create router
 const app = express();
-// Body parser
-app.use(express.json());
 
 // Mount Routers
 app.use('/api/v0/users', users);
+app.use('/api/v0/auth', auth);
 
 // Connect to database
 connectDB();
