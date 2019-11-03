@@ -5,14 +5,20 @@ const User = require('../models/User');
 // @access   Public
 exports.signup = async (req, res, next) => {
   const { username, email, password } = req.body;
-  const user = await User.create({
-    username: username,
-    email: email,
-    hash: password
-  });
-  const token = user.toAuthJSON();
-  res.status(201).json({
-    success: true,
-    token
-  });
+  try {
+    const user = await User.create({
+      username: username,
+      email: email,
+      hash: password
+    });
+    res.status(201).json({
+      success: true,
+      token: user.toAuthJSON()
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
 };
