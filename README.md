@@ -4,8 +4,6 @@ This describes the resources and endpoints that make up the esports-haven REST A
 
 ## Endpoints
 
-------
-
 ## /users Endpoint
 
 > Provides CRUD functionality to admins
