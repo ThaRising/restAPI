@@ -122,7 +122,12 @@ UserSchema.pre('save', async function(next) {
   this.tag = await this.generateTag();
   this.slug = this.generateSlug();
   this.setPassword(this.hash);
-  next(new Error('pre save error'));
+});
+
+UserSchema.post('save', function(error, doc, next) {
+  if (error) {
+    next(error);
+  }
 });
 
 const User = mongoose.model('User', UserSchema);
