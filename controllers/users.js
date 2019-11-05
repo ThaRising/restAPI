@@ -7,30 +7,74 @@ exports.getUsers = (req, res, next) => {
   res.status(200).json({ success: true, msg: 'Show all Users' });
 };
 
+// @desc   Get single user
+// @route   GET /api/v0/users/:id
+// @access   Public
+exports.getUser = async (req, res, next) => {
+  try {
+    const user = await User.findById(req.params.id);
+    res.status(201).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
 // @desc   Create user
 // @route   POST /api/v0/users
-// @access   Private
+// @access   Public
 exports.createUser = async (req, res, next) => {
-  const user = User.create(
-    {
-      username: req.body.username,
-      email: req.body.email,
-      hash: req.body.password
-    },
-    err => {
-      if (err)
-        return res.status(400).json({
-          success: false,
-          error: err.message
-        });
-      else
-        return res.status(201).json({
-          success: true,
-          data: {
-            username: req.body.username,
-            email: req.body.email
-          }
-        });
-    }
-  );
+  const { username, email, password } = req.body;
+  try {
+    const user = await User.create({
+      username: username,
+      email: email,
+      hash: password
+    });
+    res.status(201).json({
+      success: true,
+      token: user.toAuthJSON()
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
+};
+
+// @desc   Update user
+// @route   PUT /api/v0/users/:id
+// @access   Public
+exports.updateUser = async (req, res, next) => {
+  try {
+    const user = await User.findByIdAndUpdate(
+      '5dbf5a544953f828dce46420',
+      { $set: { username: 'jasonbourne' } },
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+    // const user = await User.findById(req.params.id, function(err, doc) {
+    //if (doc) {
+    //doc.username = 'derRising';
+    //doc.save();
+    //}
+    //});
+    res.status(201).json({
+      success: true,
+      data: user
+    });
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      error: error.message
+    });
+  }
 };

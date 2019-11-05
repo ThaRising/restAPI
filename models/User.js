@@ -113,9 +113,11 @@ UserSchema.methods.generateSlug = function() {
 };
 
 // Validates keys flagged with 'unique: true'
+/*
 UserSchema.plugin(uniqueValidator, {
   message: '{PATH} is already in use.'
 });
+*/
 
 // Pre-Save middleware
 UserSchema.pre('save', async function(next) {
@@ -123,6 +125,36 @@ UserSchema.pre('save', async function(next) {
   this.slug = this.generateSlug();
   this.setPassword(this.hash);
 });
+
+UserSchema.pre('findOneAndUpdate', async function(next) {
+  this.update(
+    {},
+    {
+      $set: {
+        slug: this.getUpdate()
+          .$set.username.toString()
+          .toLowerCase()
+          .replace(/\s+/g, '-')
+          .replace(/[^\w\-]+/g, '')
+          .replace(/\-\-+/g, '-')
+          .concat(`-${this.getUpdate().$set.salt}`),
+        tag: 10
+      }
+    },
+    { new: true, runValidators: true }
+  );
+  next();
+});
+
+/*
+if (this._fields.password) { // <- I'm sure about this one, check in debugger the properties of this 
+    this.update({}, { $set : { password: bcrypt.hashSync(this.getUpdate().$set.password) } });
+}
+*/
+
+/*
+if (this._update.$set.password) { this.update({}, { $set: { password: bcrypt.hashSync(this.getUpdate().$set.password)} }); }
+*/
 
 UserSchema.post('save', function(error, doc, next) {
   if (error) {
