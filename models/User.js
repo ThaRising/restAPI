@@ -101,9 +101,10 @@ UserSchema.methods.generateSlug = function() {
 
 // Pre-Save middleware
 UserSchema.pre('save', async function(next) {
-  this.tag = await this.generateTag();
-  this.slug = this.generateSlug();
-
+  if (this.isModified('username')) {
+    this.tag = await this.generateTag();
+    this.slug = this.generateSlug();
+  }
   // Encrypt Password
   if (!this.isModified('password')) {
     next();
