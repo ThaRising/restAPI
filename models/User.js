@@ -1,10 +1,9 @@
 const mongoose = require('mongoose');
-const uniqueValidator = require('mongoose-unique-validator');
-const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
 
-// Load Environmental Variables
+// Load Environment Variables
 dotenv.config({ path: './config/secret.env' });
 
 const UserSchema = new mongoose.Schema(
@@ -45,26 +44,14 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: Date.now
     },
-    hash: String,
-    salt: String
+    password: String
   },
   { autoIndex: false }
 );
 
-// Add Schema methods
-UserSchema.methods.setPassword = function(password) {
-  this.salt = crypto.randomBytes(16).toString('hex');
-  this.hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
-    .toString('hex');
-};
-
 // Validate user password
-UserSchema.methods.validPassword = function(password) {
-  const hash = crypto
-    .pbkdf2Sync(password, this.salt, 10000, 512, 'sha512')
-    .toString('hex');
-  return this.hash === hash;
+UserSchema.methods.validPassword = async function(enteredPassword) {
+  return await bcrypt.compare(enteredPassword, this.password);
 };
 
 // Generate session token
@@ -112,56 +99,23 @@ UserSchema.methods.generateSlug = function() {
     .concat(`-${this.tag}`);
 };
 
-// Validates keys flagged with 'unique: true'
-/*
-UserSchema.plugin(uniqueValidator, {
-  message: '{PATH} is already in use.'
-});
-*/
-
 // Pre-Save middleware
 UserSchema.pre('save', async function(next) {
   this.tag = await this.generateTag();
   this.slug = this.generateSlug();
-  this.setPassword(this.hash);
+
+  // Encrypt Password
+  if (!this.isModified('password')) {
+    next();
+  }
+  this.password = await bcrypt.hash(this.password, await bcrypt.genSalt(10));
 });
 
-UserSchema.pre('findOneAndUpdate', async function(next) {
-  this.update(
-    {},
-    {
-      $set: {
-        slug: this.getUpdate()
-          .$set.username.toString()
-          .toLowerCase()
-          .replace(/\s+/g, '-')
-          .replace(/[^\w\-]+/g, '')
-          .replace(/\-\-+/g, '-')
-          .concat(`-${this.getUpdate().$set.salt}`),
-        tag: 10
-      }
-    },
-    { new: true, runValidators: true }
-  );
-  next();
-});
-
-/*
-if (this._fields.password) { // <- I'm sure about this one, check in debugger the properties of this 
-    this.update({}, { $set : { password: bcrypt.hashSync(this.getUpdate().$set.password) } });
-}
-*/
-
-/*
-if (this._update.$set.password) { this.update({}, { $set: { password: bcrypt.hashSync(this.getUpdate().$set.password)} }); }
-*/
-
+// Throws errors for trycatch
 UserSchema.post('save', function(error, doc, next) {
   if (error) {
     next(error);
   }
 });
 
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);
