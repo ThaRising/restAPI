@@ -44,7 +44,17 @@ const UserSchema = new mongoose.Schema(
       type: Date,
       default: Date.now
     },
-    password: String
+    password:{
+      type: String,
+      required: true,
+      index: true,
+      minlength: [6, "Please use a Password that is at least 6 characters long"],
+      maxlength: [30, "Passwords may not be longer than 30 characters!"],
+      match: [
+        /^([^_\S]*)$/,
+        "No Whitespaces may be used in passwords!"
+      ]
+    }
   },
   { autoIndex: false }
 );
