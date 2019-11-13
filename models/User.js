@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const uniqueValidator = require('mongoose-unique-validator');
 
 // Load Environment Variables
 dotenv.config({ path: './config/config.env' });
@@ -25,6 +26,7 @@ const UserSchema = new mongoose.Schema(
 		email: {
 			type: String,
 			unique: true,
+			uniqueCaseInsensitive: true,
 			required: [ true, 'Please add an email adress' ],
 			match: [
 				/^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
@@ -43,7 +45,7 @@ const UserSchema = new mongoose.Schema(
 		},
 		password: {
 			type: String,
-			required: true,
+			required: [ true, 'A Password is required for signup!' ],
 			index: true,
 			minlength: [ 6, 'Please use a Password that is at least 6 characters long' ],
 			maxlength: [ 30, 'Passwords may not be longer than 30 characters!' ],
@@ -52,6 +54,8 @@ const UserSchema = new mongoose.Schema(
 	},
 	{ autoIndex: false }
 );
+
+UserSchema.plugin(uniqueValidator, { message: 'Error, a User with the {PATH} {VALUE} already exists' });
 
 // Validate user password
 UserSchema.methods.validPassword = async function(enteredPassword) {
@@ -124,4 +128,4 @@ UserSchema.post('save', function(error, doc, next) {
 	}
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', UserSchema, 'users');
