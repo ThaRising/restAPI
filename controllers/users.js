@@ -1,12 +1,5 @@
 const User = require('../models/User');
 
-// @desc   Get all users
-// @route   GET /api/v0/users
-// @access   Admin
-exports.getUsers = (req, res, next) => {
-	res.status(200).json({ success: true, msg: 'Show all Users' });
-};
-
 // @desc   Get single user
 // @route   GET /api/v0/users/:id
 // @access   Public
@@ -61,6 +54,23 @@ exports.updateUser = async (req, res, next) => {
 		res.status(201).json({
 			success: true,
 			data: user
+		});
+	} catch (error) {
+		res.status(400).json({
+			success: false,
+			error: error.message
+		});
+	}
+};
+
+// @desc   Delete user
+// @route   DELETE /api/v0/users/:id
+// @access   Public
+exports.deleteUser = async (req, res, next) => {
+	try {
+		await User.findByIdAndDelete(req.params.id);
+		res.status(410).json({
+			success: true
 		});
 	} catch (error) {
 		res.status(400).json({
