@@ -70,7 +70,7 @@ UserSchema.methods.generateJWT = function() {
 	return jwt.sign(
 		{
 			id: this._id,
-			username: this.username,
+			email: this.email,
 			exp: parseInt(exp.getTime() / 1000)
 		},
 		process.env.JWT_SECRET
@@ -80,8 +80,6 @@ UserSchema.methods.generateJWT = function() {
 // Return session token and user data to frontend
 UserSchema.methods.toAuthJSON = function() {
 	return {
-		username: this.username,
-		email: this.email,
 		token: this.generateJWT()
 	};
 };
