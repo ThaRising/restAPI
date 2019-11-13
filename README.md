@@ -53,18 +53,11 @@ Deprecated as the scheme is not RESTful.
 
 ### /users/ Endpoint
 
-| @desc           | @route                | @access |
-| :-------------- | :-------------------- | :------ |
-| Get all users   | GET /api/v1/users     | Admin   |
-| Get single user | GET /api/v1/users/:id | Private |
-| Create user     | POST /api/v1/users    | Private |
-| Update user     | PUT /api/v1/users/:id | Private |
+Provides CRUD functionality for users.
 
-### Team related Endpoints
-
-| @desc           | @route                | @access |
-| :-------------- | :-------------------- | :------ |
-| Get all teams   | GET /api/v1/teams     | Private |
-| Get single team | GET /api/v1/teams/:id | Private |
-| Create team     | POST /api/v1/teams    | Private |
-| Update team     | PUT /api/v1/users/:id | Private |
+| Methods                    | Description       | Access  |
+| :------------------------- | :---------------- | :------ |
+| `GET` /api/v0/users/:id    | Get User by Id    | Public  |
+| `POST` /api/v0/users       | Create User       | Public  |
+| `PUT` /api/v0/users/:id    | Update User by Id | Private |
+| `DELETE` /api/v0/users/:id | Delete User by Id | Public  |
