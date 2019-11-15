@@ -8,13 +8,16 @@ dotenv.config({ path: "./config/config.env" });
 
 // Import routers
 const users = require("./routes/users");
+const auth = require('./routes/login');
 
 // Create router
 const app = express();
 app.use(express.json());
+app.use(passport.initialize());
 
 // Mount Routers
 app.use("/api/v0/users", users);
+app.use("/api/v0/login", auth);
 app.use(errorHandler);
 
 // Connect to database
