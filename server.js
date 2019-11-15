@@ -2,15 +2,16 @@ const express = require("express");
 const dotenv = require("dotenv");
 const errorHandler = require("./middleware/error");
 const connectDB = require("./config/db");
+const passport = require("passport");
 
 // Load environmental variables
 dotenv.config({ path: "./config/config.env" });
 
-// Import routers
+// Import routes
 const users = require("./routes/users");
 const auth = require('./routes/login');
 
-// Create router
+// Create routes
 const app = express();
 app.use(express.json());
 app.use(passport.initialize());
