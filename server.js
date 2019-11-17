@@ -9,12 +9,13 @@ dotenv.config({ path: './config/config.env' });
 
 // Import routes
 const users = require('./routes/users');
-const auth = require('./routes/login');
+const login = require('./routes/login');
 
 // Create routes
 const app = express();
 app.use(express.json());
 app.use(passport.initialize());
+app.use(passport.session());
 
 // Mount Routers
 app.use(function(req, res, next) {
@@ -23,7 +24,7 @@ app.use(function(req, res, next) {
 	next();
 });
 app.use('/api/v0/users', users);
-app.use('/api/v0/login', auth);
+app.use('/api/v0/login', login);
 app.use(errorHandler);
 
 // Connect to database
