@@ -43,7 +43,7 @@ exports.createUser = async (req, res, next) => {
 
 // @desc   Update user
 // @route   PUT /api/v0/users/:id
-// @access   Public
+// @access   Private
 exports.updateUser = async (req, res, next) => {
 	try {
 		const user = await User.findByIdAndUpdate(req.params.id, req.body, {
