@@ -9,9 +9,7 @@ module.exports.login = function(req, res, next) {
         res.status(404).json(err);
       }
       if(user){
-        res.status(200).json({
-          "token" : User.generateJwt()
-        });
+        res.status(200).json(User.generateJwt());
       } else {
         res.status(401).json(info);
       }
