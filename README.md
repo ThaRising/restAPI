@@ -18,6 +18,20 @@ v0 - Pre-Release Prototype
 
 None defined yet.
 
+## How to Use
+
+Install dependencies via `npm i`
+
+Add config.env to ../config, containing the following variables:
+
+```env
+NODE_ENV="PROD"
+MONGO_URL="Poststring"
+JWT_SECRET="secret"
+```
+
+Run API locally via `npm run dev`
+
 # Endpoints
 
 **Table of Contents:**  
