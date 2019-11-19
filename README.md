@@ -51,6 +51,14 @@ Information about mentioned Access Levels can be found in the [section above](#a
 
 Deprecated as the scheme is not RESTful.
 
+### /login Endpoint
+
+Serves as temporary authentication endpoint.
+
+| Methods                    | Description          | Access  |
+| :------------------------- | :------------------- | :------ |
+| `POST` /api/v0/login       | Login User via Email | Public  |
+
 ### /users/ Endpoint
 
 Provides CRUD functionality for users.
@@ -60,4 +68,4 @@ Provides CRUD functionality for users.
 | `GET` /api/v0/users/:id    | Get User by Id    | Public  |
 | `POST` /api/v0/users       | Create User       | Public  |
 | `PUT` /api/v0/users/:id    | Update User by Id | Private |
-| `DELETE` /api/v0/users/:id | Delete User by Id | Public  |
+| `DELETE` /api/v0/users/:id | Delete User by Id | Private |
