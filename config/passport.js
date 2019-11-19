@@ -6,19 +6,23 @@ function initialize(passport) {
 		new LocalStrategy({ usernameField: 'email' }, function(email, password, done) {
 			User.findOne({ email: email }, function(err, user) {
 				if (err) {
-					return done(err);
+					return done(err)
 				}
 				if (!user) {
 					return done(null, false, {
-						message: 'User not found'
+						message: 'Incorrect Email Address.'
 					});
 				}
-				if (!user.validPassword(password)) {
-					return done(null, false, {
-						message: 'Password is wrong'
-					});
-				}
-				return done(null, user);
+				user.validPassword(password).then(function(result) {
+					if(result) {
+						return done(null, user);
+					} else {
+						return done(null, false, {
+							message: 'Incorrect Password.'
+						});
+					} 
+				}); 
+				
 			});
 		})
 	);
