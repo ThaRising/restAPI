@@ -65,7 +65,7 @@ exports.updateUser = async (req, res, next) => {
 
 // @desc   Delete user
 // @route   DELETE /api/v0/users/:id
-// @access   Public
+// @access   Private
 exports.deleteUser = async (req, res, next) => {
 	try {
 		await User.findByIdAndDelete(req.params.id);
