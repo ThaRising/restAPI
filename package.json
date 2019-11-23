@@ -2,7 +2,7 @@
   "name": "esports_haven",
   "version": "1.0.0",
   "description": "",
-  "main": "src/server.js",
+  "main": "server.js",
   "scripts": {
     "start": "node .",
     "dev": "nodemon ."
@@ -10,9 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/express": "^4.17.2",
-    "@types/node": "^12.12.11",
-    "@types/passport": "^1.0.2",
     "bcrypt": "^3.0.6",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
